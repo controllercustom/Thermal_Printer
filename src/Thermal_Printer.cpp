@@ -32,7 +32,12 @@
 #endif
 #endif
 
-#ifdef ARDUINO_ARDUINO_NANO33BLE
+#if defined(ARDUINO_ARDUINO_NANO33BLE) || defined(ARDUINO_SAMD_NANO_33_IOT) \
+  || defined(ARDUINO_UNOR4_WIFI) || defined(ARDUINO_GIGA)
+#define ARDUINO_BLE 1
+#endif
+
+#ifdef ARDUINO_BLE
 #include <ArduinoBLE.h>
 #endif
 
@@ -81,6 +86,7 @@ const PRINTERID szPrinterIDs[] = {
 	{(char *)"PeriPage+", PRINTER_PERIPAGEPLUS},
 	{(char *)"PeriPage_", PRINTER_PERIPAGE},
 	{(char *)"T02", PRINTER_FOMEMO},
+  {(char *)"BlueTooth", PRINTER_MTP2},
 	{NULL, 0}		// terminator
 };
 const int iPrinterWidth[] = {384, 576, 384, 576, 384, 384};
@@ -317,7 +323,7 @@ static BLEClient* pClient;
 static char Scanned_BLE_Name[32];
 #endif
 
-#ifdef ARDUINO_ARDUINO_NANO33BLE
+#ifdef ARDUINO_BLE
 static BLEDevice peripheral;
 static BLEService prtService;
 static BLECharacteristic pRemoteCharacteristicData;
@@ -864,7 +870,7 @@ int tpConnect(const char *szMacAddress)
     }
   return 0;
 #endif
-#ifdef ARDUINO_ARDUINO_NANO33BLE // Arduino BLE
+#ifdef ARDUINO_BLE // Arduino BLE
     if (!peripheral)
     {
 #ifdef DEBUG_OUTPUT
@@ -949,7 +955,7 @@ void tpDisconnect(void)
       bConnected = 0;
    }
 #endif
-#ifdef ARDUINO_ARDUINO_NANO33BLE
+#ifdef ARDUINO_BLE
     if (peripheral)
     {
         if (peripheral.connected())
@@ -1051,7 +1057,7 @@ int iLen = strlen(szName);
        }
     }
 #endif
-#ifdef ARDUINO_ARDUINO_NANO33BLE // Arduino API
+#ifdef ARDUINO_BLE // Arduino API
     // initialize the BLE hardware
     BLE.begin();
     // start scanning for the printer service UUID
@@ -1188,7 +1194,7 @@ static void tpWriteData(uint8_t *pData, int iLen)
       pRemoteCharacteristicData->writeValue(pData, iLen, bWithResponse);
     }
 #endif
-#ifdef ARDUINO_ARDUINO_NANO33BLE
+#ifdef ARDUINO_BLE
     pRemoteCharacteristicData.writeValue(pData, iLen, bWithResponse);
 #endif
 #ifdef ARDUINO_NRF52_ADAFRUIT
